@@ -29,6 +29,9 @@ app.set("view engine", "handlebars");
 
 // Connect to the Mongo DB
 const con = mongoose.connect("mongodb://localhost/newscraper", { useNewUrlParser: true });
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true);
 // con.then(con_obj => console.log(con_obj))
  
 // Routes
@@ -39,12 +42,12 @@ app.get("/scrape", function(req, res) {
         var $ = cheerio.load(response.data);
         // console.log($(".pigeon h3"))
         // Now, we grab every h3 within an article tag, and do the following:
-        $(".FeedCard .c0114  .c0115").each(function(i, element) {
+        $(".cards .FeedCard .c0114  .c0115").each(function(i, element) {
             var result = {};
             // console.log(element)
             // Add the text and href of every link, and save them as properties of the result object
             result.title = $(this)
-                .children(".CardHeadline")
+                .children(".CardHeadline .c0117")
                 .children("h1")
                 .text();
             result.link = $(this)
