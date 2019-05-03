@@ -28,7 +28,7 @@ $(document).ready(function () {
             }
             else {
                 $('.articles-available').append($(`<li class='list-group-item'>No notes for this article yet</li>`));
-                console.log("working!")
+                console.log("not working!")
             }
         })
         $('#note-modal').modal('toggle');

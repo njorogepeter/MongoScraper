@@ -10,23 +10,23 @@
             <a class="nav-item nav-link active" href="/saved">Saved Articles
                 <span class="sr-only">(current)</span>
             </a>
-            <button href="/saved" type="button" class="btn btn-danger" id="scrape">Scrape AP</button>
+            <button href="/saved" type="button" class="btn btn-danger" id="scrape">Scrape CNET</button>
         </div>
     </div>
 </nav>
-<div class="container-fluid">
+<div class="container-fluid p-0">
         <div class="jumbotron text-center background-image">
             <div class="overlay">
                 <div class="caption">
                     <h1 class="display-1 text-white">Mongo Scraper</h1>
-                    <h2 class="text-white">AP News</h2>
+                    <h2 class="text-white">CNET</h2>
                 </div>
             </div>
         </div>
     <div class=row>
-        <div class="col-12">
+        <div class="col-11 mx-auto">
             {{#each articles}}
-                <div class="card w-90">
+                <div class="card w-90 mb-3">
                     <div class="card-header text-white bg-primary">
                         <a href={{link}} target="_blank" class="text-white">
                             <h2>{{title}}</h2>

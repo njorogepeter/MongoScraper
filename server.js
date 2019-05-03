@@ -28,54 +28,51 @@ app.engine("handlebars", exphbs({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
 
 // Connect to the Mongo DB
-const con = mongoose.connect("mongodb://localhost/newscraper", { useNewUrlParser: true });
-mongoose.set('useNewUrlParser', true);
-mongoose.set('useFindAndModify', false);
-mongoose.set('useCreateIndex', true);
-// con.then(con_obj => console.log(con_obj))
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/cnetspcraper";
+
+mongoose.connect(MONGODB_URI);
+
+// const con = mongoose.connect("mongodb://localhost/cnetspcraper", { useNewUrlParser: true });
+// mongoose.set('useNewUrlParser', true);
+// mongoose.set('useFindAndModify', false);
+// mongoose.set('useCreateIndex', true);
+
  
 // Routes
-//  A GET route for scraping the BBC website
+//  A GET route for scraping the CNET website
 app.get("/scrape", function(req, res) {
-    //First, we grab the body of the html with axios
-    axios.get("https://www.nytimes.com/").then(function(response) {
-        var $ = cheerio.load(response.data);
-        // console.log($(".pigeon h3"))
-        // Now, we grab every h3 within an article tag, and do the following:
-        $(".cards .FeedCard .c0114  .c0115").each(function(i, element) {
-            var result = {};
-            // console.log(element)
-            // Add the text and href of every link, and save them as properties of the result object
-            result.title = $(this)
-                .children(".CardHeadline .c0117")
-                .children("h1")
-                .text();
-            result.link = $(this)
-                .children(".headline")
-                .children("a")
-                .attr("href");
-            result.summary = $(this)
-                .children(".content c0119 c0121")
-                .children("p")
-                .text();
-            
-            // Create a new Article using the 'result object built from scraping
-            db.Article.create(result)
-                .then(function(dbArticle) {
-                    // view the added result in the console
-                    // console.log(dbArticle);
-                    console.log("Scaraped!!!!!!!!!!!!!!!!")
-                })
-                .catch(function(err) {
-                    // If an error occured
-                    console.log(err);
-                });
-        });
-
-        // Send a message to the client
-        res.send("Scrape Complete");
-    }).catch((error) => console.error(error));
-});
+    // First, we grab the body of the html with axios
+    axios.get("https://www.cnet.com/").then(function(response) {
+      // Then, we load that into cheerio and save it to $ for a shorthand selector
+      var $ = cheerio.load(response.data);
+  
+      $(".col-4 h3, p").each(function(i, element) {
+        // Save an empty result object
+        var result = {};
+  
+        // Add the text and href of every link, and save them as properties of the result object
+        result.title = $(element).children("a").text();
+        result.link = $(element).children("a").attr("href");
+        result.summary = $(element).children("a").text();
+  
+        // Create a new Article using the `result` object built from scraping
+        db.Article.create(result)
+          .then(function(dbArticle) {
+            // View the added result in the console
+            console.log(dbArticle);
+            // console.log("Scaraped!!!!!!!!!!!!!!!!");
+          })
+          .catch(function(err) {
+            // If an error occurred, log it
+            console.log(err);
+          });
+      });
+  
+      // Send a message to the client
+      res.send("Scrape Complete");
+        // res.render("index", hbsObject);
+    });
+  });
 
 app.get("/", function(req, res) {
     db.Article.find({})
@@ -113,6 +110,7 @@ app.get("/articles/:id", function (req, res) {
             path: 'note',
             model: 'Note'
         })
+        // .populate("note")
         .then(function (dbArticle) {
             res.json(dbArticle);
         })
@@ -140,7 +138,7 @@ app.post("/note/:id", function (req, res) {
 
 app.delete("/note/:id", function (req, res) {
     // Create a new note and pass the req.body to the entry
-    db.Note.findByIdAndDeleteOne({ _id: req.params.id })
+    db.Note.findByIdAnd({ _id: req.params.id })
         .then(function (dbNote) {
 
             return db.Article.findOneAndUpdate({ note: req.params.id }, { $pullAll: [{ note: req.params.id }]});
